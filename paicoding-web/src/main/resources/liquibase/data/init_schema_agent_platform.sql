@@ -448,3 +448,18 @@ CREATE TABLE IF NOT EXISTS `audit_log` (
     INDEX `idx_resource` (`resource_type`, `resource_id`),
     INDEX `idx_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作审计日志';
+
+-- =====================================================
+-- 9. 全局动态配置（DynamicConfigContainer 依赖）
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `global_conf` (
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+    `key`         VARCHAR(128) NOT NULL                COMMENT '配置项名称',
+    `value`       VARCHAR(256) NOT NULL                COMMENT '配置项值',
+    `comment`     VARCHAR(256)          DEFAULT ''     COMMENT '配置描述',
+    `deleted`     TINYINT      NOT NULL DEFAULT 0,
+    `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局动态配置';
