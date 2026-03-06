@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan(basePackages = {
         "com.github.paicoding.forum.service.user.repository.mapper",
         "com.github.paicoding.forum.service.chatv2.repository.mapper",
+        "com.github.paicoding.forum.service.agent.repository.mapper",
         "com.github.paicoding.forum.service.image.oss",})
 public class ServiceAutoConfig {
 

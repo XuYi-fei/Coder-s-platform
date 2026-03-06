@@ -30,6 +30,15 @@ const router = createRouter({
       meta: {
         loginRequired: true
       }
+    },
+    // Agent Platform
+    {
+      path: '/agent',
+      name: 'agent',
+      component: () => import('@/views/AgentView.vue'),
+      meta: {
+        loginRequired: true
+      }
     }
   ]
 })

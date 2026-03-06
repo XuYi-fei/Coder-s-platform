@@ -341,6 +341,106 @@ export async function sendChatMessage(
   }
 }
 
+// ============== Agent Platform API ==============
+
+/**
+ * 获取 Agent 列表
+ */
+export function getAgents<T>(workspaceId = 0): Promise<AxiosResponse<T>> {
+  return doGet('/agent/api/agents', { workspaceId })
+}
+
+/**
+ * 获取 Agent 详情
+ */
+export function getAgent<T>(agentId: number): Promise<AxiosResponse<T>> {
+  return doGet(`/agent/api/agents/${agentId}`, {})
+}
+
+/**
+ * 获取执行会话列表
+ */
+export function getAgentSessions<T>(agentId?: number): Promise<AxiosResponse<T>> {
+  return doGet('/agent/api/sessions', agentId ? { agentId } : {})
+}
+
+/**
+ * 获取会话详情（含步骤）
+ */
+export function getAgentSession<T>(sessionId: number): Promise<AxiosResponse<T>> {
+  return doGet(`/agent/api/session/${sessionId}`, {})
+}
+
+/**
+ * 获取工具列表
+ */
+export function getAgentTools<T>(workspaceId = 0): Promise<AxiosResponse<T>> {
+  return doGet('/agent/api/tools', { workspaceId })
+}
+
+/**
+ * 获取 Agent 平台模型列表
+ */
+export function getAgentModels<T>(workspaceId = 0): Promise<AxiosResponse<T>> {
+  return doGet('/agent/api/models', { workspaceId })
+}
+
+/**
+ * 向 Agent 发送消息（流式响应）
+ * 每个 SSE 行是一个 JSON 字符串（AgentStreamEvent）
+ */
+export async function sendAgentMessage(
+  agentId: number,
+  message: string,
+  onEvent: (event: any) => void,
+  onComplete: () => void,
+  onError: (error: Error) => void
+): Promise<void> {
+  try {
+    const response = await fetch('/agent/api/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ agentId, message })
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const reader = response.body!.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed) continue
+        try {
+          const event = JSON.parse(trimmed)
+          onEvent(event)
+          if (event.done) {
+            onComplete()
+            return
+          }
+        } catch {
+          // ignore parse errors for partial lines
+        }
+      }
+    }
+    onComplete()
+  } catch (err: any) {
+    onError(err instanceof Error ? err : new Error(String(err)))
+  }
+}
+
 // ============== Knowledge Base API ==============
 
 export function getKnowledgeTree<T>(): Promise<AxiosResponse<T>> {
