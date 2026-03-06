@@ -1,188 +1,71 @@
-
 <template>
-    <HeaderBar />
+  <HeaderBar />
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-16">
+      <!-- Hero -->
+      <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">技术派平台</h1>
+        <p class="text-lg text-gray-500">基于 Spring AI 的 AI 能力集成平台</p>
+      </div>
 
-<!--  正文内容-->
-    <div class="home mt-2">
-
-      <el-skeleton class="hidden-when-screen-small" :loading="contentLoading" animated :throttle="200">
-        <template #template>
-          <div style="height: 400px">
-            <el-skeleton-item class="mt-2 mb-4 p-4"></el-skeleton-item>
-            <div class="flex justify-between">
-              <el-skeleton-item v-for="(item, id) in 4" :key="id" class="ml-4" variant="image" style="width: 285px; height: 290px" />
+      <!-- Feature cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Chat V2 -->
+        <router-link to="/chat" class="block group">
+          <div class="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg transition-all hover:border-blue-200">
+            <div class="text-4xl mb-4">💬</div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">AI 对话</h2>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              基于 Spring AI 的多模型对话，支持通义千问等大语言模型，带会话记忆与 Token 配额管理。
+            </p>
+            <div class="mt-4 text-blue-500 text-sm font-medium group-hover:translate-x-1 transition-transform inline-block">
+              开始对话 →
             </div>
           </div>
-        </template>
-        <template #default>
-          <!--      类别筛选-->
-          <NavBar :categories="vo.categories"></NavBar>
-          <!--      推荐文章-->
-          <RecommendArticle v-if="!contentLoading && vo.topArticles.length > 0" :top-articles="vo.topArticles" id="recommend-article-component"></RecommendArticle>
-        </template>
-      </el-skeleton>
+        </router-link>
 
-      <el-skeleton class="hidden-when-screen-small" :loading="articlesLoading" animated :throttle="200">
-        <template #template>
-          <div class="home-wrap bg-color">
-            <div class="home-inter-wrap">
-              <div class="home-body">
-                <div v-for="(item, id) in 10" :key="id" class="center-content" style="height: 168px">
-                  <el-skeleton-item class="mt-2 ml-2 mb-4 mr-4 p-16"></el-skeleton-item>
-                </div>
-              </div>
-              <div class="home-right">
-                <el-skeleton-item class="mt-1 mb-4 p-40"></el-skeleton-item>
-              </div>
+        <!-- Agent Platform -->
+        <router-link to="/agent" class="block group">
+          <div class="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg transition-all hover:border-purple-200">
+            <div class="text-4xl mb-4">🤖</div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">Agent 平台</h2>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              基于 ReAct 架构的智能 Agent，支持可插拔工具调用、多模型供应商配置与执行步骤可视化。
+            </p>
+            <div class="mt-4 text-purple-500 text-sm font-medium group-hover:translate-x-1 transition-transform inline-block">
+              进入平台 →
             </div>
           </div>
+        </router-link>
+      </div>
 
-        </template>
-        <template #default>
-          <div class="home-wrap bg-color" >
-            <div class="home-inter-wrap">
-              <div class="home-body">
-                <div id="articleList" class="cdc-article-panel__list">
-                  <ArticleList :articles="articles.records"></ArticleList>
-                </div>
-
-                <!--        分页组件-->
-                <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentPage" v-model:page-size="pageSize" layout="sizes, prev, pager, next" :page-count="totalPage" :default-current-page="1"
-                               @update:page-size="onPageSizeChange" @update:current-page="onCurrentPageChange"
-                />
-
-              </div>
-
-              <div class="home-right">
-                <!-- 侧边公告 -->
-<!--                <div v-if="vo.sideBarItems">-->
-<!--                  <SideBar :sidebar-items="vo.sideBarItems"></SideBar>-->
-<!--                </div>-->
-              </div>
-            </div>
-          </div>
-        </template>
-      </el-skeleton>
-
-
-      <!-- 底部信息 -->
-      <Footer></Footer>
+      <!-- Tech stack -->
+      <div class="mt-12 text-center text-xs text-gray-400 space-x-3">
+        <span>Spring Boot 3.5</span>
+        <span>·</span>
+        <span>Spring AI 1.1</span>
+        <span>·</span>
+        <span>Vue 3</span>
+        <span>·</span>
+        <span>ReAct Agent</span>
+      </div>
     </div>
-  <LoginDialog :clicked="loginDialogClicked"></LoginDialog>
-
+  </div>
+  <Footer />
+  <LoginDialog :clicked="loginDialogClicked" />
 </template>
 
 <script setup lang="ts">
+import { provide, ref } from 'vue'
 import HeaderBar from '@/components/layout/HeaderBar.vue'
-import { onMounted, provide, reactive, ref } from 'vue'
-import { doGet } from '@/http/BackendRequests'
-import { CATEGORY_ARTICLE_LIST_URL, INDEX_URL } from '@/http/URL'
-import {
-  type CommonResponse, defaultGlobalResponse, type GlobalResponse
-} from '@/http/ResponseTypes/CommonResponseType'
-import NavBar from '@/views/home/navbar/NavBar.vue'
-import { defaultIndexVoResponse, type IndexVoResponse } from '@/http/ResponseTypes/IndexVoType'
-import RecommendArticle from '@/views/home/recommend/RecommendArticle.vue'
-import ArticleList from '@/views/home/article/ArticleList.vue'
 import Footer from '@/components/layout/Footer.vue'
-import SideBar from '@/views/home/sidebar/SideBar.vue'
-import { useGlobalStore } from '@/stores/global'
-import { type BasicPageType, defaultBasicPage } from '@/http/ResponseTypes/PageType/BasicPageType'
-import type { ArticleType } from '@/http/ResponseTypes/ArticleType/ArticleType'
-import { useRoute } from 'vue-router'
 import LoginDialog from '@/components/dialog/LoginDialog.vue'
-const globalStore = useGlobalStore()
-const route = useRoute()
 
-let global = reactive<GlobalResponse>({...defaultGlobalResponse})
-let vo = reactive<IndexVoResponse>({...defaultIndexVoResponse})
-let articles = reactive<BasicPageType<ArticleType>>({...defaultBasicPage})
-onMounted(() => {
-  // 获取文章列表
-  doGet<CommonResponse>(CATEGORY_ARTICLE_LIST_URL, {
-    category: route.query['category']
-  })
-    .then((response) => {
-      console.log(response)
-      if(response.data){
-        globalStore.setGlobal(response.data.global)
-        Object.assign(vo.topArticles, response.data.result.topArticles)
-        Object.assign(vo.categories, response.data.result.categories)
-        // @ts-ignore
-        Object.assign(articles, response.data.result.articles)
-        totalPage.value = Number(response.data.result.articles.pages)
-        currentPage.value = Number(response.data.result.articles.current)
-        console.log(articles)
-        // 取消骨架屏显示
-        articlesLoading.value = false
-        contentLoading.value = false
-      }
-    })
-})
+const loginDialogClicked = ref(false)
 
-// 如下是分页操作
-const currentPage = ref(1)
-const totalPage = ref(0)
-const pageSize = ref(10)
-
-const onPageSizeChange = (newPageSize: number) => {
-  doGet<CommonResponse>(CATEGORY_ARTICLE_LIST_URL, {
-    category: route.query['category'],
-    currentPage: currentPage.value,
-    pageSize: pageSize.value
-  })
-    .then((response) => {
-      console.log(response)
-      if(response.data){
-        globalStore.setGlobal(response.data.global)
-        Object.assign(vo.topArticles, response.data.result.topArticles)
-        Object.assign(vo.categories, response.data.result.categories)
-        Object.assign(articles, response.data.result.articles)
-        totalPage.value = Number(response.data.result.articles.pages)
-        currentPage.value = Number(response.data.result.articles.current)
-        console.log(articles)
-      }
-    })
-}
-
-const onCurrentPageChange = (newCurrentPage: number) => {
-  doGet<CommonResponse>(CATEGORY_ARTICLE_LIST_URL, {
-    category: route.query['category'],
-    currentPage: newCurrentPage,
-    pageSize: pageSize.value
-  })
-    .then((response) => {
-      console.log(response)
-      if(response.data){
-        globalStore.setGlobal(response.data.global)
-        Object.assign(vo.topArticles, response.data.result.topArticles)
-        Object.assign(vo.categories, response.data.result.categories)
-        Object.assign(articles, response.data.result.articles)
-        totalPage.value = Number(response.data.result.articles.pages)
-        currentPage.value = Number(response.data.result.articles.current)
-        console.log(articles)
-      }
-    })
-}
-
-// 骨架屏显示
-const contentLoading = ref(true)
-const articlesLoading = ref(true)
-
-// 登录框
 const changeClicked = () => {
   loginDialogClicked.value = !loginDialogClicked.value
-  console.log("clicked: ", loginDialogClicked.value)
 }
 
 provide('loginDialogClicked', changeClicked)
-const loginDialogClicked = ref(false)
-
 </script>
-
-<style scoped>
-
-
-
-</style>
-
