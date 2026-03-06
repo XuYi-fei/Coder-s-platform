@@ -4,8 +4,8 @@
 
 export const EXCEL_PROCESS_BASE_URL = import.meta.env.VITE_EXCEL_PROCESS_BASE_URL || "http://localhost:5000"
 
-export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8081/api"
-export const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8081/api"
+export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8081"
+export const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8081"
 
 
 // 获得global信息还有siteInfo信息

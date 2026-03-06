@@ -45,13 +45,18 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   if (to.meta.loginRequired) {
-    const globalStore = await getGlobalStore()
-    await checkLoginStatus(globalStore)
-    if (!globalStore.global.isLogin) {
+    try {
+      const globalStore = await getGlobalStore()
+      await checkLoginStatus(globalStore)
+      if (!globalStore.global.isLogin) {
+        messageTip('请先登录', 'warning')
+        next('/')
+        return
+      }
+    } catch {
       messageTip('请先登录', 'warning')
-      await router.replace('/')
-    } else {
-      next()
+      next('/')
+      return
     }
   }
   next()

@@ -397,7 +397,7 @@ export async function sendAgentMessage(
   onError: (error: Error) => void
 ): Promise<void> {
   try {
-    const response = await fetch('/agent/api/send', {
+    const response = await fetch(`${BASE_URL}/agent/api/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
