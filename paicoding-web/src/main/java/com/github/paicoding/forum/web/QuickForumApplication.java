@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.core.util.SocketUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
-import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.model.openai.autoconfigure.*;
@@ -21,9 +20,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -52,18 +49,6 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     @Value("${server.port:8080}")
     private Integer webPort;
 
-    @Resource
-    private GlobalViewInterceptor globalViewInterceptor;
-
-    @Resource
-    private AsyncHandlerInterceptor onlineUserStatisticInterceptor;
-
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(globalViewInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(onlineUserStatisticInterceptor).addPathPatterns("/**").excludePathPatterns("/test/**").excludePathPatterns("/subscribe");
-    }
 //    @Override
 //    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
 //        resolvers.add(0, new ForumExceptionHandler());

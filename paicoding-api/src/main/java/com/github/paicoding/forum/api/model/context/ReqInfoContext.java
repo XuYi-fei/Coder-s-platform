@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.api.model.context;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import lombok.Data;
 
@@ -76,8 +75,6 @@ public class ReqInfoContext {
          * 消息数量
          */
         private Integer msgNum;
-
-        private Seo seo;
 
         private String deviceId;
 

@@ -9,7 +9,6 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
-import com.github.paicoding.forum.web.controller.home.vo.LoginSuccessVo;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,14 +53,13 @@ public class LoginRestController {
      * 用户名和密码登录
      */
     @PostMapping("/new/login/username")
-    public ResVo<LoginSuccessVo> loginByPassword(@RequestBody UserNamePasswordReq req,
-                                                 HttpServletResponse response) {
+    public ResVo<String> loginByPassword(@RequestBody UserNamePasswordReq req,
+                                         HttpServletResponse response) {
         String session = loginService.loginByUserPwd(req.getUsername(), req.getPassword());
         if (StringUtils.isNotBlank(session)) {
-            // cookie中写入用户登录信息，用于身份识别
             Cookie cookie = SessionUtil.newCookie(LoginService.SESSION_KEY, session);
             response.addCookie(cookie);
-            return ResVo.ok(new LoginSuccessVo(cookie.getValue()));
+            return ResVo.ok(session);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "用户名和密码登录异常，请稍后重试");
         }

@@ -7,7 +7,6 @@ import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.web.controller.search.vo.SearchUserVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +34,8 @@ public class UserSettingRestController {
 
     @Operation(summary = "用户搜索")
     @GetMapping(path = "query")
-    public ResVo<SearchUserVo> queryUserList(@RequestParam(name = "key", required = false) String key) {
-        List<SimpleUserInfoDTO> list = userService.searchUser(key);
-        SearchUserVo vo = new SearchUserVo();
-        vo.setKey(key);
-        vo.setItems(list);
-        return ResVo.ok(vo);
+    public ResVo<List<SimpleUserInfoDTO>> queryUserList(@RequestParam(name = "key", required = false) String key) {
+        return ResVo.ok(userService.searchUser(key));
     }
 
     @Permission(role = UserRole.LOGIN)

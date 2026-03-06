@@ -4,7 +4,6 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.web.controller.login.wx.helper.WxLoginHelper;
 import com.github.paicoding.forum.web.controller.login.wx.vo.WxLoginVo;
-import com.github.paicoding.forum.web.global.BaseViewController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import java.io.IOException;
  **/
 @Controller
 @Slf4j
-public class WxLoginController extends BaseViewController {
+public class WxLoginController {
     @Autowired
     private WxLoginHelper qrLoginHelper;
 
