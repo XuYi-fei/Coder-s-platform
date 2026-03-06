@@ -6,7 +6,6 @@ import com.github.paicoding.forum.api.model.enums.FollowStateEnum;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.paicoding.forum.core.util.MapUtils;
@@ -111,16 +110,12 @@ public class UserRelationServiceImpl implements UserRelationService {
         if (userRelationDO == null) {
             userRelationDO = UserConverter.toDO(req);
             userRelationDao.save(userRelationDO);
-            // 发布关注事件
-            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.FOLLOW, userRelationDO));
             return;
         }
 
         // 将是否关注状态重置
         userRelationDO.setFollowState(req.getFollowed() ? FollowStateEnum.FOLLOW.getCode() : FollowStateEnum.CANCEL_FOLLOW.getCode());
         userRelationDao.updateById(userRelationDO);
-        // 发布关注、取消关注事件
-        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, req.getFollowed() ? NotifyTypeEnum.FOLLOW : NotifyTypeEnum.CANCEL_FOLLOW, userRelationDO));
     }
 
     public IPage<FollowUserInfoDTO> getUserFollowListPagination(Long userId, int currentPage, int pageSize) {

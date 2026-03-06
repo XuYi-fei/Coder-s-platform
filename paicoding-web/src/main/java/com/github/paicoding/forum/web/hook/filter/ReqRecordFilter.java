@@ -8,7 +8,6 @@ import com.github.paicoding.forum.core.util.CrossUtil;
 import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
-import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import jakarta.servlet.*;
@@ -47,9 +46,6 @@ public class ReqRecordFilter implements Filter {
 
     @Autowired
     private GlobalInitService globalInitService;
-
-    @Autowired
-    private StatisticsSettingService statisticsSettingService;
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -185,11 +181,6 @@ public class ReqRecordFilter implements Filter {
         msg.append("; cost=").append(costTime);
         REQ_LOG.info("{}", msg);
 
-        // 保存请求计数
-        AsyncUtil.concurrentExecutor("保存请求计数信息")
-                        .async(() -> statisticsSettingService.saveRequestCount(req.getClientIp()), "saveRequestCount")
-                        .allExecuted();
-//        statisticsSettingService.saveRequestCount(req.getClientIp());
     }
 
 

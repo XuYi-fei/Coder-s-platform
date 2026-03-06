@@ -2,7 +2,6 @@ package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
-import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
@@ -10,8 +9,6 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
-import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
-import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.cahce.UserInfoCacheManager;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
@@ -50,12 +47,6 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserRelationDao userRelationDao;
-
-    @Autowired
-    private CountService countService;
-
-    @Autowired
-    private ArticleDao articleDao;
 
     @Autowired
     private UserSessionHelper userSessionHelper;
@@ -163,10 +154,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId) {
-
         UserStatisticInfoDTO userHomeDTO = userInfoCacheManager.getUserInfo(userId);
-        if(userHomeDTO == null){
-            userHomeDTO = countService.queryUserStatisticInfo(userId);
+        if (userHomeDTO == null) {
+            userHomeDTO = new UserStatisticInfoDTO();
             BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
             userHomeDTO = UserConverter.toUserHomeDTO(userHomeDTO, userInfoDTO);
             // 用户资料完整度
@@ -186,10 +176,6 @@ public class UserServiceImpl implements UserService {
             int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime()
                     .getTime()) / (1000 * 3600 * 24));
             userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
-
-            // 创作历程
-            List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
-            userHomeDTO.setYearArticleList(yearArticleDTOS);
 
             userInfoCacheManager.setUserInfo(userId, userHomeDTO);
         }

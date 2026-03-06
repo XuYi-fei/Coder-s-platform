@@ -4,7 +4,6 @@ import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
@@ -100,9 +99,6 @@ public class RegisterServiceImpl implements RegisterService {
         TransactionUtil.registryAfterCommitOrImmediatelyRun(new Runnable() {
             @Override
             public void run() {
-                // 用户注册事件
-                SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userId));
-
                 // 初始化用户 token 配额（ChatV2 功能）
                 if (tokenQuotaService != null) {
                     try {

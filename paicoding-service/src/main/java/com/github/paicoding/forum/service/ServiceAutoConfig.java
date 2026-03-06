@@ -11,14 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("com.github.paicoding.forum.service")
 @MapperScan(basePackages = {
-        "com.github.paicoding.forum.service.article.repository.mapper",
         "com.github.paicoding.forum.service.user.repository.mapper",
-        "com.github.paicoding.forum.service.comment.repository.mapper",
-        "com.github.paicoding.forum.service.config.repository.mapper",
-        "com.github.paicoding.forum.service.statistics.repository.mapper",
-        "com.github.paicoding.forum.service.notify.repository.mapper",
         "com.github.paicoding.forum.service.chatv2.repository.mapper",
-        "com.github.paicoding.forum.service.knowledge.repository.mapper",})
+        "com.github.paicoding.forum.service.image.oss",})
 public class ServiceAutoConfig {
 
 }
