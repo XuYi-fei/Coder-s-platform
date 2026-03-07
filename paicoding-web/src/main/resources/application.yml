@@ -41,6 +41,8 @@ servlet:
 security:
   salt: tech_π # 密码加盐, 更安全的做法是每个用户的密码使用独立的盐，并将其保存在用户表中
   salt-index: 3 # 盐插入的位置
+  # 是否启用登录鉴权：true=需要登录才能访问受保护接口；false=跳过认证（开发/调试用，生产环境必须设为 true）
+  auth-enabled: false
 
 paicoding:
   sensitive: # 敏感词校验相关配置
