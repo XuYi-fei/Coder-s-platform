@@ -35,6 +35,14 @@ public class SkillUploadService {
     /**
      * Parse the uploaded skill zip and build a SkillConfigReqVO.
      * The zip must contain a SKILL.md at its root (or one level deep).
+     *
+     * <p>Type detection:
+     * <ul>
+     *   <li>SIMPLE — zip contains only SKILL.md (no scripts/, references/, assets/)
+     *   <li>FOLDER — zip contains SKILL.md plus additional resource files/directories
+     * </ul>
+     * FOLDER zips are uploaded to OSS so the extra resources remain accessible.
+     * SIMPLE zips do not need OSS storage since the full content lives in {@code skill_md}.
      */
     public SkillUploadResult processUpload(MultipartFile file) throws IOException {
         byte[] zipBytes = file.getBytes();
@@ -48,12 +56,19 @@ public class SkillUploadService {
         // 2. Parse YAML frontmatter
         Map<String, String> frontmatter = parseFrontmatter(skillMdContent);
 
-        // 3. Upload zip to OSS
-        String ossUrl = imageUploader.upload(new ByteArrayInputStream(zipBytes), "zip");
+        // 3. Determine type: SIMPLE (SKILL.md only) vs FOLDER (has extra resources)
+        boolean hasResources = hasAdditionalResources(zipBytes);
+        String skillType = hasResources ? "FOLDER" : "SIMPLE";
 
-        // 4. Build request VO
+        // 4. Only upload to OSS when the zip carries additional resource files
+        String ossUrl = null;
+        if (hasResources) {
+            ossUrl = imageUploader.upload(new ByteArrayInputStream(zipBytes), "zip");
+        }
+
+        // 5. Build request VO
         SkillConfigReqVO req = new SkillConfigReqVO();
-        req.setSkillType("FILE_BASED");
+        req.setSkillType(skillType);
         req.setName(frontmatter.getOrDefault("name",
                 file.getOriginalFilename() != null
                         ? file.getOriginalFilename().replaceAll("\\.zip$", "")
@@ -62,6 +77,8 @@ public class SkillUploadService {
                 frontmatter.getOrDefault("name", req.getName())));
         req.setDescription(frontmatter.getOrDefault("description", ""));
         req.setContent(extractBodyAfterFrontmatter(skillMdContent));
+        req.setSkillMd(skillMdContent);
+        req.setOssUrl(ossUrl);
         req.setVisibility(3); // PUBLIC by default
 
         SkillUploadResult result = new SkillUploadResult();
@@ -69,6 +86,29 @@ public class SkillUploadService {
         result.setSkillMd(skillMdContent);
         result.setOssUrl(ossUrl);
         return result;
+    }
+
+    /**
+     * Returns true if the zip contains any file other than SKILL.md —
+     * i.e., the skill has extra resources (scripts/, references/, assets/, etc.).
+     */
+    private boolean hasAdditionalResources(byte[] zipBytes) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    String name = entry.getName();
+                    // SKILL.md at root or one level deep is the baseline — anything else counts
+                    boolean isSkillMd = name.equals("SKILL.md")
+                            || name.matches("[^/]+/SKILL\\.md");
+                    if (!isSkillMd) {
+                        return true;
+                    }
+                }
+                zis.closeEntry();
+            }
+        }
+        return false;
     }
 
     /** Locate SKILL.md inside the zip (root or one directory deep). */

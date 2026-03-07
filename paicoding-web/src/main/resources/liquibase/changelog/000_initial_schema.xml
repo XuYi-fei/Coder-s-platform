@@ -26,4 +26,9 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/seed_admin_user.sql"/>
     </changeSet>
 
+    <!-- Migrate old skill_type values (PROMPT_TEMPLATE/FILE_BASED) to new SIMPLE/FOLDER types -->
+    <changeSet id="00000000000005" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/upgrade_260307_skill_type_rename.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

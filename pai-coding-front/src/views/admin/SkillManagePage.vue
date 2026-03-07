@@ -4,8 +4,8 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-xl font-semibold text-gray-800">技能库管理</h1>
       <div class="flex gap-2">
-        <el-button type="success" @click="uploadDialogVisible = true">上传 Skill 包</el-button>
-        <el-button type="primary" @click="openCreateDialog">新建技能</el-button>
+        <el-button type="success" @click="uploadDialogVisible = true">上传 Skill 包（含资源）</el-button>
+        <el-button type="primary" @click="openCreateDialog">新建 SIMPLE Skill</el-button>
       </div>
     </div>
 
@@ -14,10 +14,10 @@
       <el-table-column label="名称" min-width="150">
         <template #default="{ row }">
           <div class="font-medium">{{ row.displayName }}</div>
-          <div class="text-xs text-gray-400 mt-0.5">{{ row.name }}</div>
+          <div class="text-xs text-gray-400 mt-0.5 font-mono">{{ row.name }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="类型" width="140">
+      <el-table-column label="类型" width="110">
         <template #default="{ row }">
           <el-tag :type="skillTypeTag(row.skillType)" size="small">{{ row.skillType }}</el-tag>
         </template>
@@ -34,8 +34,8 @@
       </el-table-column>
       <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
-          <el-button size="small" type="info" @click="previewSkill(row)">预览</el-button>
-          <el-button size="small" type="primary" @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="small" type="info" @click="previewSkill(row)">SKILL.md</el-button>
+          <el-button size="small" type="primary" :disabled="row.skillType === 'FOLDER'" @click="openEditDialog(row)">编辑</el-button>
           <el-tooltip v-if="row.isSystem === 1" content="系统内置技能不可删除" placement="top">
             <el-button size="small" type="danger" disabled>删除</el-button>
           </el-tooltip>
@@ -44,26 +44,40 @@
       </el-table-column>
     </el-table>
 
-    <!-- ============ Upload Skill Zip Dialog ============ -->
+    <!-- ============ Upload FOLDER Skill Dialog ============ -->
     <el-dialog
       v-model="uploadDialogVisible"
-      title="上传 Skill 包（.zip）"
-      width="560px"
+      title="上传 Skill 包"
+      width="580px"
       @close="resetUploadForm"
     >
-      <div class="text-sm text-gray-500 mb-4 leading-relaxed">
-        Skill 包是一个 <code>.zip</code> 文件，根目录须包含 <code>SKILL.md</code>。<br />
-        <code>SKILL.md</code> 顶部使用 YAML frontmatter 声明技能元数据：
-        <pre class="mt-2 p-3 bg-gray-50 rounded text-xs overflow-auto">---
+      <div class="text-sm text-gray-600 mb-4 leading-relaxed space-y-2">
+        <p>
+          Skill 是一个<strong>文件夹</strong>，核心是 <code>SKILL.md</code>。
+          上传时将文件夹压缩为 <code>.zip</code> 上传。
+        </p>
+        <p class="text-gray-500">
+          • <strong>SIMPLE</strong>：zip 只含 <code>SKILL.md</code>，系统自动识别<br/>
+          • <strong>FOLDER</strong>：zip 含 <code>SKILL.md</code> + 额外资源目录（<code>scripts/</code>、<code>references/</code>、<code>assets/</code>）
+        </p>
+        <pre class="mt-2 p-3 bg-gray-50 rounded text-xs overflow-auto">skill-name/
+├── SKILL.md          # 必须，YAML frontmatter + Markdown 指令
+├── scripts/          # 可选，可执行脚本
+├── references/       # 可选，参考文档
+└── assets/           # 可选，模板/图标等资源</pre>
+        <p class="text-xs text-gray-400 mt-2">
+          <code>SKILL.md</code> 顶部 YAML frontmatter 示例：
+        </p>
+        <pre class="p-3 bg-gray-50 rounded text-xs overflow-auto">---
 name: my_skill
 display_name: 我的技能
-description: 技能的简短描述
+description: 当用户需要 xxx 时触发，帮助完成 xxx 任务
 ---
 
-# 技能说明正文 (Markdown)</pre>
+# 技能说明正文（Markdown）
+你是一位专业的...（指令内容）</pre>
       </div>
 
-      <!-- Drop zone -->
       <el-upload
         ref="uploadRef"
         drag
@@ -74,9 +88,9 @@ description: 技能的简短描述
         :on-exceed="() => ElMessage.warning('每次只能上传一个 zip 文件')"
       >
         <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-        <div class="el-upload__text">将 .zip 文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__text">将 <em>.zip</em> 拖到此处，或<em>点击选择</em></div>
         <template #tip>
-          <div class="el-upload__tip">仅支持 .zip 格式，文件大小不超过 20MB</div>
+          <div class="el-upload__tip">仅支持 .zip，大小不超过 20MB</div>
         </template>
       </el-upload>
 
@@ -88,38 +102,46 @@ description: 技能的简短描述
       </template>
     </el-dialog>
 
-    <!-- ============ Create/Edit Dialog ============ -->
+    <!-- ============ Create/Edit SIMPLE Skill Dialog ============ -->
     <el-dialog
       v-model="dialogVisible"
-      :title="isEdit ? '编辑技能' : '新建技能'"
-      width="640px"
+      :title="isEdit ? '编辑 Skill（SIMPLE）' : '新建 Skill（SIMPLE）'"
+      width="680px"
       @close="resetForm"
     >
+      <div class="text-xs text-gray-400 mb-4 leading-relaxed bg-blue-50 rounded p-3">
+        <strong>SIMPLE Skill</strong> = 只有 SKILL.md，无额外资源文件。填写下方字段后，系统会自动生成标准 SKILL.md 格式存储。
+        若 Skill 需要附带脚本或参考文档，请改用"上传 Skill 包"。
+      </div>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
         <el-form-item label="标识名称" prop="name">
-          <el-input v-model="form.name" placeholder="英文下划线格式，如 code_review" />
-          <div class="text-xs text-gray-400 mt-1">英文下划线格式，LLM 通过此识别技能</div>
+          <el-input v-model="form.name" placeholder="英文下划线，如 code_review" />
+          <div class="text-xs text-gray-400 mt-1">对应 SKILL.md frontmatter 中的 <code>name</code>，LLM 通过此识别技能</div>
         </el-form-item>
         <el-form-item label="显示名称" prop="displayName">
           <el-input v-model="form.displayName" placeholder="如 代码审查" />
         </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="form.description" placeholder="技能描述" />
+        <el-form-item label="描述（触发条件）" prop="description">
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="2"
+            placeholder="描述技能的触发场景和功能，LLM 根据此决定何时使用该技能。如：当用户提交代码需要审查时触发，帮助分析代码质量"
+          />
+          <div class="text-xs text-gray-400 mt-1">对应 SKILL.md frontmatter 中的 <code>description</code></div>
         </el-form-item>
-        <el-form-item label="技能类型" prop="skillType">
-          <el-select v-model="form.skillType" class="w-full">
-            <el-option label="PROMPT_TEMPLATE（提示词模板）" value="PROMPT_TEMPLATE" />
-            <el-option label="FILE_BASED（zip 文件技能）" value="FILE_BASED" />
-            <el-option label="CODE_SNIPPET" value="CODE_SNIPPET" />
-            <el-option label="HTTP_PIPELINE" value="HTTP_PIPELINE" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="技能内容">
+        <el-form-item label="SKILL.md 正文" prop="content">
           <el-input
             v-model="form.content"
             type="textarea"
-            :rows="10"
-            placeholder="输入提示词模板或 Markdown 正文..."
+            :rows="12"
+            placeholder="Markdown 格式的技能指令正文（frontmatter 之后的部分）。
+例如：
+你是一位资深软件工程师，专注于代码质量审查。
+当用户提供代码时，从以下维度审查：
+1. 代码规范
+2. 潜在问题
+..."
           />
         </el-form-item>
         <el-form-item label="可见性">
@@ -136,29 +158,29 @@ description: 技能的简短描述
       </template>
     </el-dialog>
 
-    <!-- ============ Preview Dialog ============ -->
-    <el-dialog v-model="previewVisible" :title="previewSkillData?.displayName" width="700px">
+    <!-- ============ SKILL.md Preview Dialog ============ -->
+    <el-dialog v-model="previewVisible" :title="`SKILL.md — ${previewSkillData?.displayName}`" width="720px">
       <div v-if="previewSkillData">
         <div class="flex gap-2 mb-3">
-          <el-tag type="info" size="small">{{ previewSkillData.name }}</el-tag>
+          <el-tag type="info" size="small" class="font-mono">{{ previewSkillData.name }}</el-tag>
           <el-tag :type="skillTypeTag(previewSkillData.skillType)" size="small">{{ previewSkillData.skillType }}</el-tag>
         </div>
-        <p class="text-sm text-gray-500 mb-4">{{ previewSkillData.description }}</p>
 
-        <!-- FILE_BASED: show SKILL.md -->
-        <div v-if="previewSkillData.skillType === 'FILE_BASED' && previewSkillData.skillMd">
-          <div class="text-xs font-semibold text-gray-400 mb-1">SKILL.md</div>
-          <pre class="bg-gray-50 rounded p-3 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{ previewSkillData.skillMd }}</pre>
-          <div v-if="previewSkillData.ossUrl" class="mt-2 text-xs text-gray-400">
-            Zip 存储：<a :href="previewSkillData.ossUrl" target="_blank" class="text-blue-500 underline">下载</a>
+        <!-- 优先展示完整 SKILL.md -->
+        <div v-if="previewSkillData.skillMd">
+          <div class="text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">SKILL.md</div>
+          <pre class="bg-gray-50 rounded p-4 text-xs overflow-auto max-h-[480px] whitespace-pre-wrap leading-relaxed">{{ previewSkillData.skillMd }}</pre>
+          <div v-if="previewSkillData.skillType === 'FOLDER' && previewSkillData.ossUrl" class="mt-2 text-xs text-gray-400">
+            Skill 包（含额外资源）：
+            <a :href="previewSkillData.ossUrl" target="_blank" class="text-blue-500 underline">下载 zip</a>
           </div>
         </div>
-
-        <!-- PROMPT_TEMPLATE / others: show content -->
+        <!-- 降级：无 skill_md 时展示 content -->
         <div v-else-if="previewSkillData.content">
-          <div class="text-xs font-semibold text-gray-400 mb-1">内容</div>
-          <pre class="bg-gray-50 rounded p-3 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{ previewSkillData.content }}</pre>
+          <div class="text-xs font-semibold text-gray-400 mb-1">内容（旧格式）</div>
+          <pre class="bg-gray-50 rounded p-4 text-xs overflow-auto max-h-[480px] whitespace-pre-wrap">{{ previewSkillData.content }}</pre>
         </div>
+        <div v-else class="text-sm text-gray-400">暂无内容</div>
       </div>
     </el-dialog>
   </div>
@@ -189,9 +211,8 @@ const defaultForm = () => ({
   name: '',
   displayName: '',
   description: '',
-  skillType: 'PROMPT_TEMPLATE',
   content: '',
-  visibility: 1,
+  visibility: 3,
   workspaceId: 0,
 })
 
@@ -200,12 +221,14 @@ const form = ref(defaultForm())
 const rules: FormRules = {
   name: [{ required: true, message: '请输入标识名称', trigger: 'blur' }],
   displayName: [{ required: true, message: '请输入显示名称', trigger: 'blur' }],
-  skillType: [{ required: true, message: '请选择技能类型', trigger: 'change' }],
+  description: [{ required: true, message: '请填写描述（触发条件）', trigger: 'blur' }],
+  content: [{ required: true, message: '请输入 SKILL.md 正文', trigger: 'blur' }],
 }
 
+/** SIMPLE → primary(蓝)，FOLDER → success(绿) */
 const skillTypeTag = (type: string): '' | 'success' | 'danger' | 'info' | 'warning' => {
-  if (type === 'FILE_BASED') return 'success'
-  if (type === 'PROMPT_TEMPLATE') return ''
+  if (type === 'FOLDER') return 'success'
+  if (type === 'SIMPLE') return ''
   return 'info'
 }
 
@@ -235,9 +258,8 @@ function openEditDialog(row: any) {
     name: row.name ?? '',
     displayName: row.displayName ?? '',
     description: row.description ?? '',
-    skillType: row.skillType ?? 'PROMPT_TEMPLATE',
     content: row.content ?? '',
-    visibility: row.visibility ?? 1,
+    visibility: row.visibility ?? 3,
     workspaceId: row.workspaceId ?? 0,
   }
   dialogVisible.value = true
@@ -279,13 +301,18 @@ async function handleUpload() {
   }
 }
 
+/** 提交 SIMPLE skill（前端拼装 skill_md，后端作为备用也会生成） */
 async function handleSubmit() {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
 
   submitting.value = true
   try {
-    const payload = { ...form.value }
+    const { name, displayName, description, content, visibility, workspaceId } = form.value
+    // 前端拼装标准 SKILL.md，与后端生成逻辑保持一致
+    const skillMd = `---\nname: ${name}\ndisplay_name: ${displayName}\ndescription: ${description}\n---\n\n${content.trim()}`
+    const payload = { name, displayName, description, content, skillMd, skillType: 'SIMPLE', visibility, workspaceId }
+
     if (isEdit.value && editingSkillId.value != null) {
       await updateSkill(editingSkillId.value, payload)
       ElMessage.success('更新成功')
