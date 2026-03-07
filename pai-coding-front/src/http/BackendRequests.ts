@@ -431,6 +431,19 @@ export function deleteSkill<T>(skillId: number): Promise<AxiosResponse<T>> {
 }
 
 /**
+ * Upload a skill as a .zip file.
+ * The zip must contain SKILL.md at the root (or one folder deep).
+ */
+export function uploadSkillZip<T>(file: File): Promise<AxiosResponse<T>> {
+  const form = new FormData()
+  form.append('file', file)
+  return axios.post('/agent/api/skills/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    withCredentials: true,
+  })
+}
+
+/**
  * 向 Agent 发送消息（流式响应）
  * 每个 SSE 行是一个 JSON 字符串（AgentStreamEvent）
  */

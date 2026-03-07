@@ -15,6 +15,12 @@ public class SkillConfigDO {
     private String description;
     private String skillType;
     private String content;
+    /** FILE_BASED: raw SKILL.md text */
+    private String skillMd;
+    /** FILE_BASED: OSS storage path of the zip */
+    private String ossPath;
+    /** FILE_BASED: public URL of the zip */
+    private String ossUrl;
     private String tags;
     private Integer visibility;
     private Integer status;

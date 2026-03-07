@@ -35,6 +35,9 @@ public class SkillConfigService {
         skill.setDescription(req.getDescription());
         skill.setSkillType(req.getSkillType() != null ? req.getSkillType() : "PROMPT_TEMPLATE");
         skill.setContent(req.getContent());
+        skill.setSkillMd(req.getSkillMd());
+        skill.setOssUrl(req.getOssUrl());
+        skill.setOssPath(req.getOssPath());
         skill.setTags(req.getTags());
         skill.setVisibility(req.getVisibility() != null ? req.getVisibility() : 3);
         skill.setStatus(1);
@@ -71,6 +74,8 @@ public class SkillConfigService {
         vo.setDescription(skill.getDescription());
         vo.setSkillType(skill.getSkillType());
         vo.setContent(skill.getContent());
+        vo.setSkillMd(skill.getSkillMd());
+        vo.setOssUrl(skill.getOssUrl());
         vo.setTags(skill.getTags());
         vo.setVisibility(skill.getVisibility());
         vo.setStatus(skill.getStatus());

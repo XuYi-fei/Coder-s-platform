@@ -10,9 +10,13 @@ public class SkillConfigVO {
     private String name;
     private String displayName;
     private String description;
-    /** PROMPT_TEMPLATE / RAG_QUERY / CODE_SNIPPET / HTTP_PIPELINE */
+    /** PROMPT_TEMPLATE / CODE_SNIPPET / HTTP_PIPELINE / FILE_BASED */
     private String skillType;
     private String content;
+    /** Raw SKILL.md content (FILE_BASED type) */
+    private String skillMd;
+    /** Public URL of the uploaded skill zip */
+    private String ossUrl;
     private String tags;
     private Integer visibility;
     private Integer status;

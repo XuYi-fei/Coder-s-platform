@@ -16,4 +16,10 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/seed_tools_and_skills.sql"/>
     </changeSet>
 
+    <!-- Re-seed system tools (fix: previous INSERT had unknown 'version' column, causing silent INSERT IGNORE failure) -->
+    <!-- Extend skill_config with FILE_BASED skill support columns -->
+    <changeSet id="00000000000003" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/upgrade_260307_skill_file_based.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
