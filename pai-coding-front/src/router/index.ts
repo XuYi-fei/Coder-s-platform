@@ -39,6 +39,18 @@ const router = createRouter({
       meta: {
         loginRequired: true
       }
+    },
+    // Admin Management
+    {
+      path: '/admin',
+      component: () => import('@/views/admin/AdminLayout.vue'),
+      meta: { loginRequired: true },
+      redirect: '/admin/agents',
+      children: [
+        { path: 'agents', component: () => import('@/views/admin/AgentManagePage.vue') },
+        { path: 'tools', component: () => import('@/views/admin/ToolManagePage.vue') },
+        { path: 'models', component: () => import('@/views/admin/ModelManagePage.vue') },
+      ]
     }
   ]
 })

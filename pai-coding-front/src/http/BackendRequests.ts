@@ -385,6 +385,37 @@ export function getAgentModels<T>(workspaceId = 0): Promise<AxiosResponse<T>> {
   return doGet('/agent/api/models', { workspaceId })
 }
 
+export function createAgent<T>(data: any): Promise<AxiosResponse<T>> {
+  return doPost('/agent/api/agents', data)
+}
+export function updateAgent<T>(agentId: number, data: any): Promise<AxiosResponse<T>> {
+  return doPut(`/agent/api/agents/${agentId}`, data)
+}
+export function deleteAgent<T>(agentId: number): Promise<AxiosResponse<T>> {
+  return doDelete(`/agent/api/agents/${agentId}`, {})
+}
+export function activateAgent<T>(agentId: number): Promise<AxiosResponse<T>> {
+  return doPost(`/agent/api/agents/${agentId}/activate`, {})
+}
+export function createTool<T>(data: any): Promise<AxiosResponse<T>> {
+  return doPost('/agent/api/tools', data)
+}
+export function updateTool<T>(toolId: number, data: any): Promise<AxiosResponse<T>> {
+  return doPut(`/agent/api/tools/${toolId}`, data)
+}
+export function deleteTool<T>(toolId: number): Promise<AxiosResponse<T>> {
+  return doDelete(`/agent/api/tools/${toolId}`, {})
+}
+export function createModel<T>(data: any): Promise<AxiosResponse<T>> {
+  return doPost('/agent/api/models', data)
+}
+export function updateModel<T>(modelConfigId: number, data: any): Promise<AxiosResponse<T>> {
+  return doPut(`/agent/api/models/${modelConfigId}`, data)
+}
+export function deleteModel<T>(modelConfigId: number): Promise<AxiosResponse<T>> {
+  return doDelete(`/agent/api/models/${modelConfigId}`, {})
+}
+
 /**
  * 向 Agent 发送消息（流式响应）
  * 每个 SSE 行是一个 JSON 字符串（AgentStreamEvent）
