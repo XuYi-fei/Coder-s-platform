@@ -75,6 +75,25 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="应用技能模板">
+          <div class="flex gap-2 w-full">
+            <el-select
+              v-model="selectedSkillId"
+              placeholder="选择技能后将其提示词追加到系统提示词"
+              class="flex-1"
+              clearable
+            >
+              <el-option
+                v-for="sk in skills"
+                :key="sk.skillId"
+                :label="sk.displayName"
+                :value="sk.skillId"
+              />
+            </el-select>
+            <el-button @click="applySkill" :disabled="!selectedSkillId">追加</el-button>
+          </div>
+          <div class="text-xs text-gray-400 mt-1">选择技能后将其提示词追加到系统提示词</div>
+        </el-form-item>
         <el-form-item label="系统提示词">
           <el-input
             v-model="form.systemPrompt"
@@ -124,6 +143,7 @@ import {
   updateAgent,
   deleteAgent,
   activateAgent,
+  getSkills,
 } from '@/http/BackendRequests'
 
 const loading = ref(false)
@@ -133,6 +153,8 @@ const isEdit = ref(false)
 const agents = ref<any[]>([])
 const models = ref<any[]>([])
 const tools = ref<any[]>([])
+const skills = ref<any[]>([])
+const selectedSkillId = ref<number | null>(null)
 const formRef = ref<FormInstance>()
 const editingAgentId = ref<number | null>(null)
 
@@ -172,19 +194,31 @@ const statusTagType = (status: number): '' | 'success' | 'danger' | 'info' | 'wa
 async function loadData() {
   loading.value = true
   try {
-    const [agentsRes, modelsRes, toolsRes] = await Promise.all([
+    const [agentsRes, modelsRes, toolsRes, skillsRes] = await Promise.all([
       getAgents<any>(),
       getAgentModels<any>(),
       getAgentTools<any>(),
+      getSkills<any>(),
     ])
     agents.value = agentsRes?.data?.result ?? []
     models.value = modelsRes?.data?.result ?? []
     tools.value = toolsRes?.data?.result ?? []
+    skills.value = skillsRes?.data?.result ?? []
   } catch (e) {
     ElMessage.error('加载数据失败')
   } finally {
     loading.value = false
   }
+}
+
+function applySkill() {
+  if (!selectedSkillId.value) return
+  const skill = skills.value.find((s) => s.skillId === selectedSkillId.value)
+  if (!skill) return
+  const separator = form.value.systemPrompt ? '\n\n' : ''
+  form.value.systemPrompt = form.value.systemPrompt + separator + skill.content
+  selectedSkillId.value = null
+  ElMessage.success(`已追加技能「${skill.displayName}」的提示词`)
 }
 
 function openCreateDialog() {

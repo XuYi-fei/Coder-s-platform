@@ -27,6 +27,13 @@
         >
           模型管理
         </router-link>
+        <router-link
+          to="/admin/skills"
+          class="sidebar-link"
+          :class="{ 'sidebar-link-active': route.path.startsWith('/admin/skills') }"
+        >
+          🎯 技能库
+        </router-link>
       </nav>
       <div class="p-3 border-t">
         <a href="/" class="sidebar-link text-gray-400">← 返回主站</a>

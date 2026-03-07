@@ -416,6 +416,20 @@ export function deleteModel<T>(modelConfigId: number): Promise<AxiosResponse<T>>
   return doDelete(`/agent/api/models/${modelConfigId}`, {})
 }
 
+// ============== Skill API ==============
+export function getSkills<T>(): Promise<AxiosResponse<T>> {
+  return doGet('/agent/api/skills', {})
+}
+export function createSkill<T>(data: any): Promise<AxiosResponse<T>> {
+  return doPost('/agent/api/skills', data)
+}
+export function updateSkill<T>(skillId: number, data: any): Promise<AxiosResponse<T>> {
+  return doPut(`/agent/api/skills/${skillId}`, data)
+}
+export function deleteSkill<T>(skillId: number): Promise<AxiosResponse<T>> {
+  return doDelete(`/agent/api/skills/${skillId}`, {})
+}
+
 /**
  * 向 Agent 发送消息（流式响应）
  * 每个 SSE 行是一个 JSON 字符串（AgentStreamEvent）

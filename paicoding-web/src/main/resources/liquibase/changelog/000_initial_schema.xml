@@ -12,4 +12,8 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_schema_agent_platform.sql"/>
     </changeSet>
 
+    <changeSet id="00000000000002" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/seed_tools_and_skills.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
