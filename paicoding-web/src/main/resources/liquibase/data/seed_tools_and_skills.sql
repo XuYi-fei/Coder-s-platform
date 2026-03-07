@@ -4,7 +4,7 @@
 -- =====================================================
 
 INSERT IGNORE INTO `tool_config`
-  (`name`, `display_name`, `description`, `tool_type`, `input_schema`, `config`, `timeout_ms`, `retry_count`, `risk_level`, `visibility`, `status`, `is_system`, `creator_user_id`, `workspace_id`)
+  (`name`, `display_name`, `description`, `tool_type`, `input_schema`, `config`, `timeout_ms`, `retry_count`, `risk_level`, `visibility`, `status`, `is_system`, `version`, `creator_user_id`, `workspace_id`)
 VALUES
 -- 1. 获取当前时间
 (
@@ -14,7 +14,7 @@ VALUES
   'JAVA_FUNCTION',
   '{"type":"object","properties":{},"required":[]}',
   '{"bean_name":"builtinToolFunctions","method_name":"getCurrentTime"}',
-  5000, 0, 1, 3, 1, 1, 0, 0
+  5000, 0, 1, 3, 1, 1, 1, 0, 0
 ),
 -- 2. 数学计算
 (
@@ -24,7 +24,7 @@ VALUES
   'JAVA_FUNCTION',
   '{"type":"object","properties":{"expression":{"type":"string","description":"要计算的数学表达式，如 2+3*4"}},"required":["expression"]}',
   '{"bean_name":"builtinToolFunctions","method_name":"calculate"}',
-  5000, 0, 1, 3, 1, 1, 0, 0
+  5000, 0, 1, 3, 1, 1, 1, 0, 0
 ),
 -- 3. 网络搜索（DuckDuckGo Instant Answer）
 (
@@ -34,7 +34,7 @@ VALUES
   'HTTP_API',
   '{"type":"object","properties":{"query":{"type":"string","description":"搜索关键词"}},"required":["query"]}',
   '{"url":"https://api.duckduckgo.com/?q={query}&format=json&no_html=1&skip_disambig=1","method":"GET"}',
-  15000, 1, 1, 3, 1, 1, 0, 0
+  15000, 1, 1, 3, 1, 1, 1, 0, 0
 ),
 -- 4. 天气查询（wttr.in，免费无需 API Key）
 (
@@ -44,7 +44,7 @@ VALUES
   'HTTP_API',
   '{"type":"object","properties":{"location":{"type":"string","description":"城市名称，如 Beijing、Shanghai、shenzhen"}},"required":["location"]}',
   '{"url":"https://wttr.in/{location}?format=j1","method":"GET"}',
-  15000, 1, 1, 3, 1, 1, 0, 0
+  15000, 1, 1, 3, 1, 1, 1, 0, 0
 ),
 -- 5. HTTP GET 请求
 (
@@ -54,7 +54,7 @@ VALUES
   'HTTP_API',
   '{"type":"object","properties":{"url":{"type":"string","description":"完整的 HTTP/HTTPS URL"}},"required":["url"]}',
   '{"url":"{url}","method":"GET"}',
-  20000, 0, 2, 3, 1, 1, 0, 0
+  20000, 0, 2, 3, 1, 1, 1, 0, 0
 );
 
 -- =====================================================
